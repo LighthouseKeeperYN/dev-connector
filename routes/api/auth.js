@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const config = require('config');
 const jwt = require('jsonwebtoken');
 const User = require('../../models/User');
+const { sendServerError } = require('../../utilities');
 
 // @route   GET api/auth
 // @desc    Get user data
@@ -15,8 +16,7 @@ router.get('/', auth, async (req, res) => {
     const user = await User.findById(req.user.id).select('-password');
     res.json(user);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    sendServerError(err, res);
   }
 });
 
@@ -50,17 +50,12 @@ router.post(
       }
 
       const payload = { user: { id: user.id } };
-      jwt.sign(
-        payload,
-        config.get('jwtSecret'),
-        { expiresIn: 3600000 },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ token });
+      jwt.sign(payload, config.get('jwtSecret'), { expiresIn: 3600000 }, (err, token) => {
+        if (err) throw err;
+        res.json({ token });
       });
     } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server error');
+      sendServerError(err, res);
     }
   }
 );

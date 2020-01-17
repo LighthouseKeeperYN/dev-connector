@@ -4,6 +4,7 @@ const { check, validationResult } = require('express-validator');
 const auth = require('../../middleware/auth');
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
+const { sendServerError } = require('../../utilities');
 
 // @route   GET api/profile/me
 // @desc    Get current users profile
@@ -21,8 +22,7 @@ router.get('/me', auth, async (req, res) => {
 
     res.json(profile);
   } catch (err) {
-    console.log(err.message);
-    return res.status(500).send('Server error');
+    sendServerError(err, res);
   }
 });
 
@@ -97,10 +97,43 @@ router.post(
       await profile.save();
       res.json(profile);
     } catch (err) {
-      console.error(err);
-      return res.status(500).send('Server error');
+      sendServerError(err, res);
     }
   }
 );
+
+// @route   GET api/profile
+// @desc    Get all profiles
+// @access  Public
+router.get('/', async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+    res.json(profiles);
+  } catch (err) {
+    sendServerError(err, res);
+  }
+});
+
+// @route   GET api/profile/users/:user_id
+// @desc    Get profile by ID
+// @access  Public
+router.get('/user/:user_id', async (req, res) => {
+  try {
+    const profile = await Profile.findOne({ user: req.params.user_id }).populate('user', [
+      'name',
+      'avatar',
+    ]);
+
+    if (!profile) {
+      return res.status(400).json({ msg: 'Theres no profile for this user' });
+    }
+
+    res.json(profile);
+  } catch (err) {
+    if (err.kind === 'ObjectId') {
+      return res.status(400).json({ msg: 'Theres no profile for this user' });
+    } else sendServerError(err, res);
+  }
+});
 
 module.exports = router;
