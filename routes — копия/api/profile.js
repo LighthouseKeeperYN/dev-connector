@@ -46,40 +46,50 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const {
-      company,
-      website,
-      location,
-      status,
-      skills,
-      bio,
-      githubusername,
-      youtube,
-      twitter,
-      facebook,
-      linkedin,
-      instagram,
-    } = req.body;
+    // const {
+    //   company,
+    //   website,
+    //   location,
+    //   status,
+    //   skills,
+    //   bio,
+    //   githubusername,
+    //   youtube,
+    //   twitter,
+    //   facebook,
+    //   linkedin,
+    //   instagram,
+    // } = req.body;
+
+    // if (company) profileFields.company = company;
+    // if (website) profileFields.website = website;
+    // if (location) profileFields.location = location;
+    // if (status) profileFields.status = status;
+    // if (githubusername) profileFields.githubusername = githubusername;
 
     const profileFields = {
       user: req.user.id,
-      status,
-      skills: skills.split(',').map((skill) => skill.trim()),
-      social: {},
+      company: req.body.company,
+      website: req.body.website,
+      location: req.body.location,
+      status: req.body.status,
+      githubusername: req.body.githubusername,
+      skills: req.body.skills.split(',').map((skill) => skill.trim()),
+      social: {
+        youtube: req.body.youtube,
+        twitter: req.body.twitter,
+        facebook: req.body.facebook,
+        linkedin: req.body.linkedin,
+        instagram: req.body.instagram,
+      },
     };
 
-    if (company) profileFields.company = company;
-    if (website) profileFields.website = website;
-    if (location) profileFields.location = location;
-    if (status) profileFields.status = status;
-    if (bio) profileFields.bio = bio;
-    if (githubusername) profileFields.githubusername = githubusername;
+    console.log(profileFields.skills);
+    // if (req.body.skills) {
+    //   profileFields.skills = skills.split(',').map((skill) => skill.trim());
+    // }
 
-    if (youtube) profileFields.social.youtube = youtube;
-    if (twitter) profileFields.social.twitter = twitter;
-    if (facebook) profileFields.social.facebook = facebook;
-    if (linkedin) profileFields.social.linkedin = linkedin;
-    if (instagram) profileFields.social.instagram = instagram;
+    // profileFields.social;
 
     try {
       let profile = await Profile.findOne({ user: req.user.id });
@@ -94,7 +104,9 @@ router.post(
       }
 
       profile = new Profile(profileFields);
+
       await profile.save();
+
       res.json(profile);
     } catch (err) {
       console.error(err);
