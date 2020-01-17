@@ -1,0 +1,3 @@
+{
+  "mongoURI": "mongodb+srv://freesaber:freesaber@cluster0-hktcw.mongodb.net/test?retryWrites=true&w=majority"
+}
