@@ -73,4 +73,73 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
+// @route   DELETE api/posts/:id
+// @desc    Delete a post
+// @access  Private
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) return res.status(404).json({ msg: 'Post not found' });
+    if (post.user.toString() !== req.user.id) {
+      return res.status(401).json({ msg: 'User not authorized' });
+    }
+
+    await post.remove();
+
+    res.json({ msg: 'Post removed' });
+  } catch (err) {
+    if (err.kind === 'ObjectId') return res.status(404).json({ msg: 'Post not found' });
+    else sendServerError(err, res);
+  }
+});
+
+// @route   PUT api/posts/like/:id
+// @desc    Like a post
+// @access  Private
+router.put('/like/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) return res.status(404).json({ msg: 'Post not found' });
+
+    const isLiked = post.likes.some((like) => like.user.toString() === req.user.id);
+    if (isLiked) return res.status(400).json({ msg: 'Already liked by this user' });
+
+    post.likes.unshift({ user: req.user.id });
+
+    await post.save();
+
+    res.json(post.likes);
+  } catch (err) {
+    if (err.kind === 'ObjectId') return res.status(404).json({ msg: 'Post not found' });
+    else sendServerError(err, res);
+  }
+});
+
+// @route   PUT api/posts/unlike/:id
+// @desc    Unlike a post
+// @access  Private
+router.put('/unlike/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) return res.status(404).json({ msg: 'Post not found' });
+
+    const isLiked = post.likes.some((like) => like.user.toString() === req.user.id);
+    if (!isLiked) {
+      return res.status(400).json({ msg: 'Has not yet been liked by this user' });
+    }
+
+    post.likes = post.likes.filter((like) => like.user.toString() !== req.user.id);
+
+    await post.save();
+
+    res.json(post.likes);
+  } catch (err) {
+    if (err.kind === 'ObjectId') return res.status(404).json({ msg: 'Post not found' });
+    else sendServerError(err, res);
+  }
+});
+
 module.exports = router;
