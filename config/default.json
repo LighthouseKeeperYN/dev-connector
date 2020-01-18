@@ -1,4 +1,6 @@
 {
   "mongoURI": "mongodb+srv://freesaber:freesaber@cluster0-hktcw.mongodb.net/test?retryWrites=true&w=majority",
-  "jwtSecret": "myon"
+  "jwtSecret": "myon",
+  "githubClientId": "57e71b8a1e32e8bf1737",
+  "githubClientSecret": "3b4ee277cdc9a1273ab271747a691af0b1bebee1"
 }
