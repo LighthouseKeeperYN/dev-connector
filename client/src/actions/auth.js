@@ -9,6 +9,7 @@ import {
   AUTH_ERROR,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
+  LOGOUT,
 } from './types';
 import { setAlert } from './alert';
 
@@ -38,7 +39,6 @@ export const register = (formData) => async (dispatch) => {
       type: REGISTER_SUCCESS,
       payload: res.data,
     });
-
 
     dispatch(loadUser());
   } catch (err) {
@@ -73,3 +73,5 @@ export const login = (formData) => async (dispatch) => {
     dispatch({ type: LOGIN_FAIL });
   }
 };
+
+export const logout = () => (dispatch) => dispatch({ type: LOGOUT });
